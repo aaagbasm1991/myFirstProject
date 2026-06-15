@@ -7,12 +7,13 @@ public class OrcMonster : MonoBehaviour
     [SerializeField] private Texture2D walkSheet;
     [SerializeField] private int frameWidth = 100;
     [SerializeField] private int frameHeight = 100;
+    [SerializeField] private float spritePixelsPerUnit = 12f;
     [SerializeField] private float animationFrameRate = 8f;
     [SerializeField] private float moveSpeed = 1.15f;
     [SerializeField] private float patrolRadius = 1.4f;
     [SerializeField] private float waitDuration = 1.1f;
-    [SerializeField] private Vector2 shadowOffset = new Vector2(0f, -0.23f);
-    [SerializeField] private Vector2 shadowScale = new Vector2(0.46f, 0.18f);
+    [SerializeField] private Vector2 shadowOffset = new Vector2(0f, -0.48f);
+    [SerializeField] private Vector2 shadowScale = new Vector2(1.35f, 0.36f);
     [SerializeField] private Color shadowColor = new Color(0f, 0f, 0f, 0.38f);
 
     private SpriteRenderer spriteRenderer;
@@ -178,21 +179,71 @@ public class OrcMonster : MonoBehaviour
         int rows = Mathf.Max(1, sheet.height / frameHeight);
         Sprite[] frames = new Sprite[columns * rows];
         int index = 0;
+        float pixelsPerUnit = Mathf.Max(1f, spritePixelsPerUnit);
 
         for (int row = rows - 1; row >= 0; row--)
         {
             for (int column = 0; column < columns; column++)
             {
+                Rect frameRect = new Rect(column * frameWidth, row * frameHeight, frameWidth, frameHeight);
+                Rect spriteRect = GetVisibleRect(sheet, frameRect);
+
                 frames[index++] = Sprite.Create(
                     sheet,
-                    new Rect(column * frameWidth, row * frameHeight, frameWidth, frameHeight),
+                    spriteRect,
                     new Vector2(0.5f, 0.5f),
-                    frameWidth
+                    pixelsPerUnit
                 );
             }
         }
 
         return frames;
+    }
+
+    private Rect GetVisibleRect(Texture2D sheet, Rect frameRect)
+    {
+        try
+        {
+            Color32[] pixels = sheet.GetPixels32();
+            int textureWidth = sheet.width;
+            int minX = (int)frameRect.xMax;
+            int minY = (int)frameRect.yMax;
+            int maxX = (int)frameRect.xMin;
+            int maxY = (int)frameRect.yMin;
+
+            for (int y = (int)frameRect.yMin; y < (int)frameRect.yMax; y++)
+            {
+                for (int x = (int)frameRect.xMin; x < (int)frameRect.xMax; x++)
+                {
+                    if (pixels[y * textureWidth + x].a == 0)
+                    {
+                        continue;
+                    }
+
+                    minX = Mathf.Min(minX, x);
+                    minY = Mathf.Min(minY, y);
+                    maxX = Mathf.Max(maxX, x);
+                    maxY = Mathf.Max(maxY, y);
+                }
+            }
+
+            if (maxX < minX || maxY < minY)
+            {
+                return frameRect;
+            }
+
+            const int padding = 1;
+            minX = Mathf.Max((int)frameRect.xMin, minX - padding);
+            minY = Mathf.Max((int)frameRect.yMin, minY - padding);
+            maxX = Mathf.Min((int)frameRect.xMax - 1, maxX + padding);
+            maxY = Mathf.Min((int)frameRect.yMax - 1, maxY + padding);
+
+            return new Rect(minX, minY, maxX - minX + 1, maxY - minY + 1);
+        }
+        catch (UnityException)
+        {
+            return frameRect;
+        }
     }
 
     private void EnsureShadow()

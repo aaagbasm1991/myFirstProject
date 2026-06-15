@@ -54,6 +54,7 @@ public static class SceneMonsterSetup
             importer.filterMode = FilterMode.Point;
             importer.textureCompression = TextureImporterCompression.Uncompressed;
             importer.alphaIsTransparency = true;
+            importer.isReadable = true;
             importer.spritePixelsPerUnit = 100f;
             importer.SaveAndReimport();
         }
@@ -100,6 +101,7 @@ public static class SceneMonsterSetup
         serializedMonster.FindProperty("walkSheet").objectReferenceValue = walkSheet;
         serializedMonster.FindProperty("frameWidth").intValue = 100;
         serializedMonster.FindProperty("frameHeight").intValue = 100;
+        serializedMonster.FindProperty("spritePixelsPerUnit").floatValue = 12f;
         serializedMonster.FindProperty("animationFrameRate").floatValue = 8f;
         serializedMonster.FindProperty("moveSpeed").floatValue = 1.15f;
         serializedMonster.FindProperty("patrolRadius").floatValue = patrolRadius;
