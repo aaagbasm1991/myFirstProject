@@ -85,3 +85,6 @@ Assets/
 - 加入攝影機跟隨玩家
 - 加入敵人、互動物件與 UI
 - 整理 Build Settings 與版本控制忽略規則
+## Version Test
+
+- Pushed update test: 2026-06-15
